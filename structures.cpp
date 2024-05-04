@@ -2,7 +2,6 @@
 #include <vector>
 
 constexpr int MAX_NODE_SIZE = 4096; // Tamaño máximo de un nodo en disco
-constexpr int B = MAX_NODE_SIZE / sizeof(Entry); // Factor de ramificación del árbol
 
 
 // Clase para representar un punto en el espacio
@@ -10,6 +9,8 @@ class Point {
 public:
     double x, y;
 
+    Point() : x(0.0), y(0.0) {}
+    
     Point(double _x, double _y) : x(_x), y(_y) {}
 };
 
@@ -23,6 +24,7 @@ public:
     Entry(const Point& _p, double _cr, int _child_page) : p(_p), cr(_cr), child_page(_child_page) {}
 };
 
+constexpr int B = MAX_NODE_SIZE / sizeof(Entry); // Factor de ramificación del árbol
 
 // Clase para representar un nodo en el M-Tree
 class Node {
