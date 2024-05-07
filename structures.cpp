@@ -9,9 +9,21 @@ class Point {
 public:
     double x, y;
 
+    // Sobrecarga del operador de igualdad
+    bool operator==(const Point& other) const {
+        return x == other.x && y == other.y;
+    }
+
+    // Sobrecarga del operador de desigualdad
+    bool operator!=(const Point& other) const {
+        return !(*this == other);
+    }
+
     Point() : x(0.0), y(0.0) {}
     
     Point(double _x, double _y) : x(_x), y(_y) {}
+
+    
 };
 
 // Clase para representar una entrada en el M-Tree
