@@ -104,34 +104,95 @@ std::vector<Cluster> makeClusters(std::vector<Point> C_in, int B){
     return C_out;  
 }
 
-int main(){
-    int n = 1000; // Número de puntos a generar
-    int B = 128; // Tamaño máximo de un cluster
+
+/*
+Funcion que dado un conjunto de puntos C_in, retorna un conjunto una tupla (g, r, a) donde g es el medoide primario de Cin, r es llamado el
+radio cobertor y a la dirección del hijo respectivo.
+
+param C_in: Un conjunto de puntos
+
+return: Una tupla (g, r, a) donde g es el medoide primario de Cin, r es llamado el radio cobertor y a la dirección del hijo respectivo.
+*/
+
+Entry OutputHoja(std::vector<Point> C_in){
+    //1. Sea g el medoide primario de _Cin. Sea r = 0. Sea C = {} (el que corresponderá al nodo hoja).
+    Point g = findMedoid(C_in);
+    double r = 0;
+    std::vector<Entry> C;
+    //2. Por cada p ∈ C_in: Añadimos (p, null, null) a C. Seteamos r = max(r, dist(g, p))
+    for (int i = 0; i < C_in.size(); i++){
+        Entry temp = Entry(C_in[i], 0.0, nullptr);
+        C.push_back(temp);
+        r = std::max(r, euclidean_distance(g, C_in[i]));
+    }
+
+    //pedir memoria para C
+    std::vector<Entry>* C_mem; 
+    C_mem = (std::vector<Entry>*) malloc(sizeof(Entry) * C.size());
+    
+    //copiar C en el espacio pedido en memoria C_men
+    for (int i = 0; i < C.size(); i++){
+        (*C_mem).push_back(C[i]);
+    }
+    
+    //4. Retornamos (g, r, a)
+    return Entry(g, r, C_mem);    
+}
+
+// int main(){
+//     int n = 1000; // Número de puntos a generar
+//     int B = 128; // Tamaño máximo de un cluster
+//     double min_val = 0.0; // Valor mínimo en el rango
+//     double max_val = 1.0; // Valor máximo en el rango
+
+//     std::vector<Point> points = generate_random_points(n, min_val, max_val);
+
+//     // // Imprimir los puntos generados
+//     // std::cout << "Puntos generados:" << std::endl;
+//     // for (const auto& point : points) {
+//     //     std::cout << "(" << point.x << ", " << point.y << ")" << std::endl;
+//     // }
+
+//     std::vector<Cluster> clusters = makeClusters(points, B);
+
+//     // Imprimir los clusters generados
+//     std::cout << "Clusters generados:" << std::endl;
+//     int i = 1;
+//     for (const auto& cluster : clusters) {
+//         std::cout << "Cluster " << i++ << ":" << std::endl;
+//         std::cout << "Medoid: (" << cluster.medoid.x << ", " << cluster.medoid.y << ")" << std::endl;
+//         std::cout << "Puntos:" << std::endl;
+//         for (const auto& point : cluster.points) {
+//             std::cout << "(" << point.x << ", " << point.y << ")" << std::endl;
+//         }
+//         std::cout << "Radio: " << cluster.radius() << std::endl;
+//     }
+
+// }
+
+
+int main() {
+    int n = 10; // Número de puntos a generar
     double min_val = 0.0; // Valor mínimo en el rango
     double max_val = 1.0; // Valor máximo en el rango
 
     std::vector<Point> points = generate_random_points(n, min_val, max_val);
 
-    // // Imprimir los puntos generados
-    // std::cout << "Puntos generados:" << std::endl;
-    // for (const auto& point : points) {
-    //     std::cout << "(" << point.x << ", " << point.y << ")" << std::endl;
-    // }
-
-    std::vector<Cluster> clusters = makeClusters(points, B);
-
-    // Imprimir los clusters generados
-    std::cout << "Clusters generados:" << std::endl;
-    int i = 1;
-    for (const auto& cluster : clusters) {
-        std::cout << "Cluster " << i++ << ":" << std::endl;
-        std::cout << "Medoid: (" << cluster.medoid.x << ", " << cluster.medoid.y << ")" << std::endl;
-        std::cout << "Puntos:" << std::endl;
-        for (const auto& point : cluster.points) {
-            std::cout << "(" << point.x << ", " << point.y << ")" << std::endl;
-        }
-        std::cout << "Radio: " << cluster.radius() << std::endl;
+    int B = 128; // Tamaño máximo de un cluster
+    
+    Entry result = OutputHoja(points);
+    // Imprimir tupla (g, r, a)
+    std::cout << "Medoide: (" << result.p.x << ", " << result.p.y << ")" << std::endl;
+    std::cout << "Radio: " << result.cr << std::endl;
+    // direccion en memoria de a
+    std::cout << "Direccion de memoria de a: " << result.child_page << std::endl;
+    
+    std::vector<Entry>* a = result.child_page;
+    // imprimir el tamaño del vector
+    for (int i = 0; i < a->size(); i++){
+        std::cout << "(" << (*a)[i].p.x << ", " << (*a)[i].p.y << ")" << std::endl;
+        std::cout << "Direccion de memoria de a: " << (*a)[i].child_page << std::endl;
+        std::cout << "Radio: " << (*a)[i].cr << std::endl;
     }
-
+    return 0;
 }
-

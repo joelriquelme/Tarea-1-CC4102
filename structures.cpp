@@ -18,9 +18,9 @@ class Entry {
 public:
     Point p;
     double cr; // Radio cobertor
-    int child_page; // Dirección en disco de la página del hijo
+    std::vector<Entry>* child_page; // Dirección en disco de la página del hijo
 
-    Entry(const Point& _p, double _cr, int _child_page) : p(_p), cr(_cr), child_page(_child_page) {}
+    Entry(const Point& _p, double _cr, std::vector<Entry>* _child_page) : p(_p), cr(_cr), child_page(_child_page) {}
 };
 
 constexpr int B = MAX_NODE_SIZE / sizeof(Entry); // Factor de ramificación del árbol
