@@ -7,27 +7,9 @@
 #include <limits>
 #include "structures.cpp"
 
-// Función para generar n puntos aleatorios en el rango [min_val, max_val]
-std::vector<Point> generate_random_points(int n, double min_val, double max_val) {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(seed);
-    
-    std::uniform_real_distribution<> dis_x(min_val, max_val);
-    std::uniform_real_distribution<> dis_y(min_val, max_val);
 
-    std::vector<Point> points;
-    for (int i = 0; i < n; ++i) {
-        double x = dis_x(gen);
-        double y = dis_y(gen);
-        points.emplace_back(x, y);
-    }
-    return points;
-}
 
-// Función para calcular la distancia euclidiana entre dos puntos
-double eucludean_distance(const Point& p1, const Point& p2) {
-    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
-}
+
 
 // Función para obtener el punto más cercano en un conjunto de puntos
 Point closest_point(const std::vector<Point>& points, const Point& p) {

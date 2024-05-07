@@ -3,7 +3,6 @@
 
 constexpr int MAX_NODE_SIZE = 4096; // Tamaño máximo de un nodo en disco
 
-
 // Clase para representar un punto en el espacio
 class Point {
 public:
@@ -68,4 +67,71 @@ public:
     }
 
     // Otros métodos como búsqueda, eliminación, etc., se pueden agregar aquí
+};
+
+double distance(const Point& p1, const Point& p2) {
+    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+}
+
+Point findMedoide(const std::vector<Point>& points) {
+    Point medoid = points[0];
+    double minRadius = std::numeric_limits<double>::max();
+
+    for (const Point& candidate : points) {
+        double maxDist = 0.0;
+
+        for (const Point& p : points) {
+            double d = distance(candidate, p);
+            if (d > maxDist)
+                maxDist = d;
+        }
+
+        if (maxDist < minRadius) {
+            minRadius = maxDist;
+            medoid = candidate;
+        }
+    }
+
+    return medoid;
+}
+
+// Clase para repesentar un Cluster
+class Cluster {
+public:
+    Point medoid;
+    std::vector<Point> points;
+
+    Cluster() {}
+
+    Cluster(const Point& _medoid, const std::vector<Point>& _points) : medoid(_medoid), points(_points) {}
+
+    // Función para añadir un punto al cluster
+    void add_point(const Point& point) {
+        points.push_back(point);
+    }
+
+    // Función para recalcular el medoide del cluster
+    void recalculate_medoid() {
+        medoid = findMedoide(points);
+    }
+
+    // Función para unir dos clusters
+    void merge(const Cluster& other) {
+        points.insert(points.end(), other.points.begin(), other.points.end());
+        recalculate_medoid();
+    }
+
+    // Función que retorna el radio del cluster
+    double radius() const {
+        double max_distance = 0.0;
+
+        for (const Point& p : points) {
+            double distancia = distance(medoid, p);
+            if (distancia > max_distance) {
+                max_distance = distancia;
+            }
+        }
+
+        return max_distance;
+    }
 };
