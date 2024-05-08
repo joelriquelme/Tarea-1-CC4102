@@ -139,6 +139,33 @@ Entry OutputHoja(std::vector<Point> C_in){
     return Entry(g, r, C_mem);    
 }
 
+Entry OutputInterno(std::vector<Entry> C_mra){
+
+    std::vector<Point> medoides;
+    for (int i = 0; i < C_mra.size(); i++) {
+        medoides.push_back(C_mra[i].p);
+    }
+    Point G = findMedoid(medoides);
+    double R = 0;
+    std::vector<Entry> C;
+    for (int i = 0; i < C_mra.size(); i++){
+        C.push_back(C_mra[i]);
+        R = std::max(R, euclidean_distance(G, C_mra[i].p) + C_mra[i].cr);
+    }
+
+    //pedir memoria para C
+    std::vector<Entry>* C_mem_2; 
+    C_mem_2 = (std::vector<Entry>*) malloc(sizeof(Entry) * C.size());
+    
+    //copiar C en el espacio pedido en memoria C_men
+    for (int i = 0; i < C.size(); i++){
+        (*C_mem_2).push_back(C[i]);
+    }
+    
+    //4. Retornamos (G, R, A)
+    return Entry(G, R, C_mem_2);    
+}
+
 // int main(){
 //     int n = 1000; // Número de puntos a generar
 //     int B = 128; // Tamaño máximo de un cluster
@@ -194,5 +221,29 @@ int main() {
         std::cout << "Direccion de memoria de a: " << (*a)[i].child_page << std::endl;
         std::cout << "Radio: " << (*a)[i].cr << std::endl;
     }
+
+    // testing OutputInterno
+    std::vector<Entry> results_outputHoja;
+    for(int i = 0; i < n; i++) {
+        std::vector<Point> points_2 = generate_random_points(n, min_val, max_val);
+        Entry temp_result = OutputHoja(points_2);
+        results_outputHoja.push_back(temp_result);
+    }
+    Entry result_2 = OutputInterno(results_outputHoja);
+    // Imprimir tupla (G, R, A)
+    std::cout << "Medoide: (" << result_2.p.x << ", " << result_2.p.y << ")" << std::endl;
+    std::cout << "Radio: " << result_2.cr << std::endl;
+    // direccion en memoria de A
+    std::cout << "Direccion de memoria de A: " << result_2.child_page << std::endl;
+
+    std::vector<Entry>* A = result_2.child_page;
+
+    // imprimir el tamaño del vector
+    for (int i = 0; i < A->size(); i++){
+        std::cout << "(" << (*A)[i].p.x << ", " << (*A)[i].p.y << ")" << std::endl;
+        std::cout << "Direccion de memoria de A: " << (*A)[i].child_page << std::endl;
+        std::cout << "Radio: " << (*A)[i].cr << std::endl;
+    }
+
     return 0;
 }
