@@ -166,6 +166,36 @@ Entry OutputInterno(std::vector<Entry> C_mra){
     return Entry(G, R, C_mem_2);    
 }
 
+//INCOMPLETO: Arreglar bugs de compilación
+Entry* AlgoritmoSS(std::vector<Point> C_in){
+    Entry result = Entry(Point(0,0), 0.0, nullptr);
+    if (C_in.size() <= B) {
+        result = OutputHoja(C_in);
+    }
+    else {
+        std::vector<Cluster> C_out = makeClusters(C_in, 128);
+        std::vector<Entry> C;
+        for (int i = 0; i < C_out.size(); i++) {
+            C.push_back(OutputHoja(C_out[i]));
+        }
+        while (C.size() > B) {
+            std::vector<Entry> C_mra;
+            for(int i = 0; i < C_out.size(); i++) {
+                auto it = std::find(C.begin(), C.end(), C_out[i].p);
+                if(it != C.end()) {
+                    C_mra.push_back(C_out[i]);
+                }
+            }
+            C.clear();
+            for(int i = 0; i < C_mra.size(); i++) {
+                C.push_back(OutputInterno(C_mra[i]));
+            }
+        }
+        result = OutputInterno(C);
+    }
+    return result.child_page;
+}
+
 // int main(){
 //     int n = 1000; // Número de puntos a generar
 //     int B = 128; // Tamaño máximo de un cluster
