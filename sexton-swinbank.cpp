@@ -141,36 +141,24 @@ Entry OutputHoja(std::vector<Point> C_in){
     return Entry(g, r, &C);    
 }
 
-Entry OutputInterno(std::vector<Entry> C_mra){
-
+Entry OutputInterno(const std::vector<Entry>& C_mra) {
     std::vector<Point> medoides;
-    for (int i = 0; i < C_mra.size(); i++) {
-        medoides.push_back(C_mra[i].p);
+    for (const auto& entry : C_mra) {
+        medoides.push_back(entry.p);
     }
     Point G = findMedoid(medoides);
     double R = 0;
     std::vector<Entry> C;
     C.reserve(C_mra.size());
-    //std::vector<Entry>* C = (std::vector<Entry>*) malloc(sizeof(Entry) * (C_mra.size() + 1));
-    for (int i = 0; i < C_mra.size(); i++){
-        C.push_back(C_mra[i]);
-        R = std::max(R, euclidean_distance(G, C_mra[i].p) + C_mra[i].cr);
+    for (const auto& entry : C_mra) {
+        C.push_back(entry);
+        R = std::max(R, euclidean_distance(G, entry.p) + entry.cr);
     }
-    // //pedir memoria para C
-    // std::vector<Entry>* C_mem_2; 
-    // C_mem_2 = (std::vector<Entry>*) malloc(sizeof(Entry) * C.size());
-    
-    // //copiar C en el espacio pedido en memoria C_men
-    // for (int i = 0; i < C.size(); i++){
-    //     (*C_mem_2).push_back(C[i]);
-    // }
-    
-    //4. Retornamos (G, R, A)
-    return Entry(G, R, &C);    
+    return Entry(G, R, new std::vector<Entry>(C)); // Se usa new para asignar memoria dinámicamente
 }
 
-//INCOMPLETO: Arreglar bugs en tiempo de ejecución
-std::vector<Entry>* AlgoritmoSS(std::vector<Point> C_in, int B){
+
+std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
     Entry result = Entry(Point(0,0), 0.0, nullptr);
     if (C_in.size() <= B) {
         result = OutputHoja(C_in);
@@ -183,10 +171,6 @@ std::vector<Entry>* AlgoritmoSS(std::vector<Point> C_in, int B){
             Entry tmp = OutputHoja(C_in_tmp);
             C.push_back(tmp);
         }
-        //imprimir C.size()
-        std::cout << "C.size() = " << C.size() << std::endl;
-        // imprimir tamaño de B
-        std::cout << "B = " << B << std::endl;
         while (C.size() > B) {
             //4.1 Sea C_in_2 = {g|(g, r, a) ∈ C}. Sea C_out = Cluster(Cin). Sea Cmra = {}.
             std::vector<Point> C_in_2;
@@ -218,9 +202,11 @@ std::vector<Entry>* AlgoritmoSS(std::vector<Point> C_in, int B){
             //4.3 Sea C = {}.
             C.clear(); 
             //4.4 Por cada s ∈ Cmra: Añadir OutputInterno(s) a C
+            std::cout << C_mra.size() << std::endl;
             for (int i = 0; i < C_mra.size(); i++) {
                 std::vector<Entry> s = C_mra[i];
                 Entry temp = OutputInterno(s);
+                std::cout << "Tamaño de 'a' de cada elemento de Cmra: " << temp.child_page->size() << std::endl;
                 C.push_back(temp);
             }
         }
@@ -230,6 +216,7 @@ std::vector<Entry>* AlgoritmoSS(std::vector<Point> C_in, int B){
     //6. Se retorna a
     //imprime el tamaño de a
     std::cout << "Tamaño de a: " << result.child_page->size() << std::endl;
+    std::cout << "r dentro de SSalgorithm " << result.cr << std::endl;
     return result.child_page;
 }
 
@@ -325,13 +312,18 @@ int main() {
 
 
     std::cout << "TEST ALGORITMO N > B"<< std::endl;
-    int n_2 = 300;
+    int n_2 = 1000;
     std::vector<Point> points_4 = generate_random_points(n_2, min_val, max_val);
     std::vector<Entry>* resultado_2 = AlgoritmoSS(points_4, B);
+    std::cout << "size del resultado: " << resultado_2->size() << std::endl;
 
-    // imprime el tamaño de resultado_2
-    std::cout << "Tamaño de resultado_2: " << resultado_2->size() << std::endl;
+ 
 
+    for (int i = 0; i < resultado_2->size(); i++){
+         std::cout << "(" << (*resultado_2)[i].p.x << ", " << (*resultado_2)[i].p.y << ")" << std::endl;
+         std::cout << "Direccion de memoria de A: " << (*resultado_2)[i].child_page << std::endl;
+         std::cout << "Radio: " << (*resultado_2)[i].cr << std::endl;
+    }
 
 
 
