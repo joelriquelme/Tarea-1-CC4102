@@ -113,7 +113,6 @@ param C_in: Un conjunto de puntos
 
 return: Una tupla (g, r, a) donde g es el medoide primario de Cin, r es llamado el radio cobertor y a la dirección del hijo respectivo.
 */
-
 Entry OutputHoja(std::vector<Point> C_in){
     //1. Sea g el medoide primario de _Cin. Sea r = 0. Sea C = {} (el que corresponderá al nodo hoja).
     Point g = findMedoid(C_in);
