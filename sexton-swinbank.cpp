@@ -113,30 +113,123 @@ param C_in: Un conjunto de puntos
 
 return: Una tupla (g, r, a) donde g es el medoide primario de Cin, r es llamado el radio cobertor y a la dirección del hijo respectivo.
 */
-
 Entry OutputHoja(std::vector<Point> C_in){
     //1. Sea g el medoide primario de _Cin. Sea r = 0. Sea C = {} (el que corresponderá al nodo hoja).
     Point g = findMedoid(C_in);
     double r = 0;
     std::vector<Entry> C;
+    C.reserve(C_in.size());
+    //std::vector<Entry>* C = new std::vector<Entry>(C_in.size());
     //2. Por cada p ∈ C_in: Añadimos (p, null, null) a C. Seteamos r = max(r, dist(g, p))
     for (int i = 0; i < C_in.size(); i++){
         Entry temp = Entry(C_in[i], 0.0, nullptr);
         C.push_back(temp);
         r = std::max(r, euclidean_distance(g, C_in[i]));
-    }
 
-    //pedir memoria para C
-    std::vector<Entry>* C_mem; 
-    C_mem = (std::vector<Entry>*) malloc(sizeof(Entry) * C.size());
-    
-    //copiar C en el espacio pedido en memoria C_men
-    for (int i = 0; i < C.size(); i++){
-        (*C_mem).push_back(C[i]);
     }
+    //pedir memoria para C
+    // std::vector<Entry>* C_mem; 
+    // C_mem = (std::vector<Entry>*) malloc(sizeof(Entry) * C.size());
+    
+    // //copiar C en el espacio pedido en memoria C_men
+    // for (int i = 0; i < C.size(); i++){
+    //     (*C_mem).push_back(C[i]);
+    // }
     
     //4. Retornamos (g, r, a)
-    return Entry(g, r, C_mem);    
+    return Entry(g, r, &C);    
+}
+
+Entry OutputInterno(std::vector<Entry> C_mra){
+
+    std::vector<Point> medoides;
+    for (int i = 0; i < C_mra.size(); i++) {
+        medoides.push_back(C_mra[i].p);
+    }
+    Point G = findMedoid(medoides);
+    double R = 0;
+    std::vector<Entry> C;
+    C.reserve(C_mra.size());
+    //std::vector<Entry>* C = (std::vector<Entry>*) malloc(sizeof(Entry) * (C_mra.size() + 1));
+    for (int i = 0; i < C_mra.size(); i++){
+        C.push_back(C_mra[i]);
+        R = std::max(R, euclidean_distance(G, C_mra[i].p) + C_mra[i].cr);
+    }
+    // //pedir memoria para C
+    // std::vector<Entry>* C_mem_2; 
+    // C_mem_2 = (std::vector<Entry>*) malloc(sizeof(Entry) * C.size());
+    
+    // //copiar C en el espacio pedido en memoria C_men
+    // for (int i = 0; i < C.size(); i++){
+    //     (*C_mem_2).push_back(C[i]);
+    // }
+    
+    //4. Retornamos (G, R, A)
+    return Entry(G, R, &C);    
+}
+
+//INCOMPLETO: Arreglar bugs en tiempo de ejecución
+std::vector<Entry>* AlgoritmoSS(std::vector<Point> C_in, int B){
+    Entry result = Entry(Point(0,0), 0.0, nullptr);
+    if (C_in.size() <= B) {
+        result = OutputHoja(C_in);
+    }
+    else {
+        std::vector<Cluster> C_out = makeClusters(C_in, B);
+        std::vector<Entry> C;         
+        for (int i = 0; i < C_out.size(); i++) {
+            std::vector<Point> C_in_tmp = C_out[i].points;
+            Entry tmp = OutputHoja(C_in_tmp);
+            C.push_back(tmp);
+        }
+        //imprimir C.size()
+        std::cout << "C.size() = " << C.size() << std::endl;
+        // imprimir tamaño de B
+        std::cout << "B = " << B << std::endl;
+        while (C.size() > B) {
+            //4.1 Sea C_in_2 = {g|(g, r, a) ∈ C}. Sea C_out = Cluster(Cin). Sea Cmra = {}.
+            std::vector<Point> C_in_2;
+            // Define C_in_2
+            for (int i = 0; i < C.size(); i++) {
+                C_in_2.push_back(C[i].p);
+            }
+            // Define C_out
+            std::vector<Cluster> C_out = makeClusters(C_in_2, B);
+            // Define Cmra
+            std::vector<std::vector<Entry>> C_mra;
+            // 4.2 Por cada c ∈ C_out: Sea s = {(g, r, a)|(g, r, a) ∈ C ∧ g ∈ c}, se añade s a Cmra
+            for (int i = 0; i < C_out.size(); i++) {
+                Cluster c = C_out[i];
+
+                for (int j = 0; j < C.size(); j++) {
+                    std::vector<Entry> s;
+                    Entry temp_entry = C[j];
+                    // En python: if C[j].p in c.points:
+                    if (std::find(c.points.begin(), c.points.end(), temp_entry.p) != c.points.end()) {
+                        s.push_back(temp_entry);
+                    }
+                    C_mra.push_back(s);
+
+                    //find(v.begin(), v.end(), busqueda) != v.end();
+                }
+                
+            }
+            //4.3 Sea C = {}.
+            C.clear(); 
+            //4.4 Por cada s ∈ Cmra: Añadir OutputInterno(s) a C
+            for (int i = 0; i < C_mra.size(); i++) {
+                std::vector<Entry> s = C_mra[i];
+                Entry temp = OutputInterno(s);
+                C.push_back(temp);
+            }
+        }
+        //5. Sea (g, r, a) = OutputInterno(C)
+        result = OutputInterno(C);
+    }
+    //6. Se retorna a
+    //imprime el tamaño de a
+    std::cout << "Tamaño de a: " << result.child_page->size() << std::endl;
+    return result.child_page;
 }
 
 // int main(){
@@ -180,19 +273,66 @@ int main() {
 
     int B = 128; // Tamaño máximo de un cluster
     
-    Entry result = OutputHoja(points);
-    // Imprimir tupla (g, r, a)
-    std::cout << "Medoide: (" << result.p.x << ", " << result.p.y << ")" << std::endl;
-    std::cout << "Radio: " << result.cr << std::endl;
-    // direccion en memoria de a
-    std::cout << "Direccion de memoria de a: " << result.child_page << std::endl;
+    // Entry result = OutputHoja(points);
+    // // Imprimir tupla (g, r, a)
+    // std::cout << "Medoide: (" << result.p.x << ", " << result.p.y << ")" << std::endl;
+    // std::cout << "Radio: " << result.cr << std::endl;
+    // // direccion en memoria de a
+    // std::cout << "Direccion de memoria de a: " << result.child_page << std::endl;
     
-    std::vector<Entry>* a = result.child_page;
-    // imprimir el tamaño del vector
-    for (int i = 0; i < a->size(); i++){
-        std::cout << "(" << (*a)[i].p.x << ", " << (*a)[i].p.y << ")" << std::endl;
-        std::cout << "Direccion de memoria de a: " << (*a)[i].child_page << std::endl;
-        std::cout << "Radio: " << (*a)[i].cr << std::endl;
-    }
+    // std::vector<Entry>* a = result.child_page;
+    // // imprimir el tamaño del vector
+    // for (int i = 0; i < a->size(); i++){
+    //     std::cout << "(" << (*a)[i].p.x << ", " << (*a)[i].p.y << ")" << std::endl;
+    //     std::cout << "Direccion de memoria de a: " << (*a)[i].child_page << std::endl;
+    //     std::cout << "Radio: " << (*a)[i].cr << std::endl;
+    // }
+
+    // // testing OutputInterno
+    // std::vector<Entry> results_outputHoja;
+    // for(int i = 0; i < n; i++) {
+    //     std::vector<Point> points_2 = generate_random_points(n, min_val, max_val);
+    //     Entry temp_result = OutputHoja(points_2);
+    //     results_outputHoja.push_back(temp_result);
+    // }
+    // Entry result_2 = OutputInterno(results_outputHoja);
+    // // Imprimir tupla (G, R, A)
+    // std::cout << "Medoide: (" << result_2.p.x << ", " << result_2.p.y << ")" << std::endl;
+    // std::cout << "Radio: " << result_2.cr << std::endl;
+    // // direccion en memoria de A
+    // std::cout << "Direccion de memoria de A: " << result_2.child_page << std::endl;
+
+    // std::vector<Entry>* A = result_2.child_page;
+
+    // // imprimir el tamaño del vector
+    // for (int i = 0; i < A->size(); i++){
+    //     std::cout << "(" << (*A)[i].p.x << ", " << (*A)[i].p.y << ")" << std::endl;
+    //     std::cout << "Direccion de memoria de A: " << (*A)[i].child_page << std::endl;
+    //     std::cout << "Radio: " << (*A)[i].cr << std::endl;
+    // }
+
+    //testing algoritmoSS
+    // std::vector<Point> points_3 = generate_random_points(n, min_val, max_val);
+    // std::vector<Entry>* resultado = AlgoritmoSS(points_3, B);
+
+    // std::cout << "TEST ALGORITMO N <= B"<< std::endl;
+    // for (int i = 0; i < resultado->size(); i++){
+    //     std::cout << "(" << (*resultado)[i].p.x << ", " << (*resultado)[i].p.y << ")" << std::endl;
+    //     std::cout << "Direccion de memoria de A: " << (*resultado)[i].child_page << std::endl;
+    //     std::cout << "Radio: " << (*resultado)[i].cr << std::endl;
+    // }
+
+
+    std::cout << "TEST ALGORITMO N > B"<< std::endl;
+    int n_2 = 300;
+    std::vector<Point> points_4 = generate_random_points(n_2, min_val, max_val);
+    std::vector<Entry>* resultado_2 = AlgoritmoSS(points_4, B);
+
+    // imprime el tamaño de resultado_2
+    std::cout << "Tamaño de resultado_2: " << resultado_2->size() << std::endl;
+
+
+
+
     return 0;
 }
