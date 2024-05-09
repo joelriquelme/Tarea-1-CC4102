@@ -8,6 +8,11 @@ class Point {
 public:
     double x, y;
 
+    //definir el operdador de igualdad
+    bool operator==(const Point& p) const {
+        return x == p.x && y == p.y;
+    }
+
     Point() : x(0.0), y(0.0) {}
     
     Point(double _x, double _y) : x(_x), y(_y) {}
