@@ -166,34 +166,50 @@ Entry OutputInterno(std::vector<Entry> C_mra){
     return Entry(G, R, C_mem_2);    
 }
 
-//INCOMPLETO: Arreglar bugs de compilación
-Entry* AlgoritmoSS(std::vector<Point> C_in){
+//INCOMPLETO: Arreglar bugs en tiempo de ejecución
+Entry AlgoritmoSS(std::vector<Point> C_in){
     Entry result = Entry(Point(0,0), 0.0, nullptr);
     if (C_in.size() <= B) {
+        //BUG: Segmentation fault
         result = OutputHoja(C_in);
     }
     else {
         std::vector<Cluster> C_out = makeClusters(C_in, 128);
         std::vector<Entry> C;
+        std::vector<Point> medoid_set;
         for (int i = 0; i < C_out.size(); i++) {
-            C.push_back(OutputHoja(C_out[i]));
+            medoid_set.push_back(C_out[i].medoid);
+        }
+        for (int i = 0; i < medoid_set.size(); i++) {
+            C.push_back(OutputHoja(medoid_set));
         }
         while (C.size() > B) {
             std::vector<Entry> C_mra;
-            for(int i = 0; i < C_out.size(); i++) {
-                auto it = std::find(C.begin(), C.end(), C_out[i].p);
-                if(it != C.end()) {
-                    C_mra.push_back(C_out[i]);
+            //for(int i = 0; i < C_out.size(); i++) {
+            //    auto it = std::find(C.begin(), C.end(), C_out[i].medoid);
+            //    if(it != C.end()) {
+            //        C_mra.push_back(C[i]);
+            //    }
+            //}
+            for (const auto& cluster : C_out) {
+                // Encontrar los elementos en C que están dentro de este cluster
+                std::vector<Entry> s;
+                for (const auto& entry : C) {
+                    if (cluster.contains(entry.p)) { // Utilizamos la función contiene() para verificar si el punto está dentro del cluster
+                        s.push_back(entry);
+                    }
                 }
+                // Agregar los elementos encontrados a Cmra
+                C_mra.insert(C_mra.end(), s.begin(), s.end());
             }
             C.clear();
             for(int i = 0; i < C_mra.size(); i++) {
-                C.push_back(OutputInterno(C_mra[i]));
+                C.push_back(OutputInterno(C_mra));
             }
         }
         result = OutputInterno(C);
     }
-    return result.child_page;
+    return result;
 }
 
 // int main(){
@@ -274,6 +290,10 @@ int main() {
         std::cout << "Direccion de memoria de A: " << (*A)[i].child_page << std::endl;
         std::cout << "Radio: " << (*A)[i].cr << std::endl;
     }
+
+    //testing algoritmoSS
+
+    AlgoritmoSS(points);
 
     return 0;
 }
