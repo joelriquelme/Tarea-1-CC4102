@@ -13,7 +13,21 @@
 
 **Fecha de Entrega**: 12 de Abril de 2024
 
-## Estructuras de Datos
+## Compilación y Ejecución
+
+Para compilar el archivo `main.cpp`, fue utilizado `g++` con `std=c++17`.
+
+Se utilizaron los siguientes comandos:
+
+```
+//Compilar el archivo main.cpp
+g++ -std=c++17 main.cpp -o main.out
+
+//Ejecutar
+./main.out
+```
+
+## Estructuras de Datos  
 
 Todas las estructuras de datos implementadas en este proyecto se encuentran en el archivo `structures.cpp`. A continuación se describen las estructuras implementadas:
 

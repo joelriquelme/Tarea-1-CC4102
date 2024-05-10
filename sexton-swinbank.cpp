@@ -16,6 +16,7 @@ return: retorna un vector de clusters de tamaño entre b y B. Siendo b = B/2.
 */
 
 std::vector<Cluster> makeClusters(std::vector<Point> C_in, int B){
+    std::cout << "Construyendo Clusters..." << std::endl;
     //1. Se define C_out = {} y C = {}
     std::vector<Cluster> C_out;
     std::vector<Cluster> C;
@@ -94,6 +95,7 @@ std::vector<Cluster> makeClusters(std::vector<Point> C_in, int B){
     }
     //6.2 Si no, dividimos c ∪ cp en c1 y c2 usando MinMax split policy. Se añaden c1 y c2 a Cout.
     else{
+        std::cout << "Aplicando MinMax Split Policy..." << std::endl;
         Cluster c_temp = c;
         c_temp.merge(cp);
         std::pair<Cluster, Cluster> bestClusters = minmax_split(c_temp.points);
@@ -104,6 +106,7 @@ std::vector<Cluster> makeClusters(std::vector<Point> C_in, int B){
     }
     
     //7. Se retorna C_out
+    std::cout << "Clusters generados!" << std::endl;
     return C_out;  
 }
 
@@ -134,6 +137,7 @@ Entry OutputHoja(const std::vector<Point>& C_in) {
 
 
 Entry OutputInterno(const std::vector<Entry>& C_mra) {
+    std::cout << "Construyendo Nodo Interno..." << std::endl;
     std::vector<Point> medoides;
     for (const auto& entry : C_mra) {
         medoides.push_back(entry.p);
@@ -146,6 +150,7 @@ Entry OutputInterno(const std::vector<Entry>& C_mra) {
         C.push_back(entry);
         R = std::max(R, euclidean_distance(G, entry.p) + entry.cr);
     }
+    std::cout << "Nodo Interno generado!" << std::endl;
     return Entry(G, R, new std::vector<Entry>(C)); // Se usa new para asignar memoria dinámicamente
 }
 
@@ -157,12 +162,15 @@ std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
     }
     else {
         std::vector<Cluster> C_out = makeClusters(C_in, B);
-        std::vector<Entry> C;         
+        std::vector<Entry> C;
+        std::cout << "Construyendo Hojas..." << std::endl;         
         for (int i = 0; i < C_out.size(); i++) {
             std::vector<Point> C_in_tmp = C_out[i].points;
             Entry tmp = OutputHoja(C_in_tmp);
             C.push_back(tmp);
         }
+        std::cout << "Hojas generadas!" << std::endl;
+
         while (C.size() > B) {
             //4.1 Sea C_in_2 = {g|(g, r, a) ∈ C}. Sea C_out = Cluster(Cin). Sea Cmra = {}.
             std::vector<Point> C_in_2;
@@ -198,7 +206,6 @@ std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
             for (int i = 0; i < C_mra.size(); i++) {
                 std::vector<Entry> s = C_mra[i];
                 Entry temp = OutputInterno(s);
-                std::cout << "Tamaño de 'a' de cada elemento de Cmra: " << temp.child_page->size() << std::endl;
                 C.push_back(temp);
             }
         }
@@ -206,9 +213,7 @@ std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
         result = OutputInterno(C);
     }
     //6. Se retorna a
-    //imprime el tamaño de a
-    std::cout << "Tamaño de a: " << result.child_page->size() << std::endl;
-    std::cout << "r dentro de SSalgorithm " << result.cr << std::endl;
+    std::cout << "M-Tree construido con éxito!" << std::endl;
     return result.child_page;
 }
 
@@ -217,17 +222,17 @@ std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
 //     int B = 128; // Tamaño máximo de un cluster
 //     double min_val = 0.0; // Valor mínimo en el rango
 //     double max_val = 1.0; // Valor máximo en el rango
-
+//
 //     std::vector<Point> points = generate_random_points(n, min_val, max_val);
-
+//
 //     // // Imprimir los puntos generados
 //     // std::cout << "Puntos generados:" << std::endl;
 //     // for (const auto& point : points) {
 //     //     std::cout << "(" << point.x << ", " << point.y << ")" << std::endl;
 //     // }
-
+//
 //     // std::vector<Cluster> clusters = makeClusters(points, B);
-
+//
 //     // // Imprimir los clusters generados
 //     // std::cout << "Clusters generados:" << std::endl;
 //     // int i = 1;
@@ -238,102 +243,102 @@ std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
 //     //     std::cout << "Tamaño del cluster: " << cluster.points.size() << std::endl;
 //     //     std::cout << "Radio: " << cluster.radius() << std::endl;
 //     // }
-
+//
 //     // probar minmax_split  
 //     std::pair<Cluster, Cluster> bestClusters = minmax_split(points); 
 //     // tamaño de los clusters
 //     std::cout << "Tamaño de los clusters: " << bestClusters.first.points.size() << " y " << bestClusters.second.points.size() << std::endl;
-    
-
+//    
+//
 // }
 
 
-int main() {
-    int n = 10; // Número de puntos a generar
-    double min_val = 0.0; // Valor mínimo en el rango
-    double max_val = 1.0; // Valor máximo en el rango
-
-    std::vector<Point> points = generate_random_points(n, min_val, max_val);
-
-    int B = 128; // Tamaño máximo de un cluster
-    
-    // Entry result = OutputHoja(points);
-    // // Imprimir tupla (g, r, a)
-    // std::cout << "Medoide: (" << result.p.x << ", " << result.p.y << ")" << std::endl;
-    // std::cout << "Radio: " << result.cr << std::endl;
-    // // direccion en memoria de a
-    // std::cout << "Direccion de memoria de a: " << result.child_page << std::endl;
-    
-    // std::vector<Entry>* a = result.child_page;
-    // // imprimir el tamaño del vector
-    // for (int i = 0; i < a->size(); i++){
-    //     std::cout << "(" << (*a)[i].p.x << ", " << (*a)[i].p.y << ")" << std::endl;
-    //     std::cout << "Direccion de memoria de a: " << (*a)[i].child_page << std::endl;
-    //     std::cout << "Radio: " << (*a)[i].cr << std::endl;
-    // }
-
-    // // testing OutputInterno
-    // std::vector<Entry> results_outputHoja;
-    // for(int i = 0; i < n; i++) {
-    //     std::vector<Point> points_2 = generate_random_points(n, min_val, max_val);
-    //     Entry temp_result = OutputHoja(points_2);
-    //     results_outputHoja.push_back(temp_result);
-    // }
-    // Entry result_2 = OutputInterno(results_outputHoja);
-    // // Imprimir tupla (G, R, A)
-    // std::cout << "Medoide: (" << result_2.p.x << ", " << result_2.p.y << ")" << std::endl;
-    // std::cout << "Radio: " << result_2.cr << std::endl;
-    // // direccion en memoria de A
-    // std::cout << "Direccion de memoria de A: " << result_2.child_page << std::endl;
-
-    // std::vector<Entry>* A = result_2.child_page;
-
-    // // imprimir el tamaño del vector
-    // for (int i = 0; i < A->size(); i++){
-    //     std::cout << "(" << (*A)[i].p.x << ", " << (*A)[i].p.y << ")" << std::endl;
-    //     std::cout << "Direccion de memoria de A: " << (*A)[i].child_page << std::endl;
-    //     std::cout << "Radio: " << (*A)[i].cr << std::endl;
-    // }
-
-    //testing algoritmoSS
-    // std::vector<Point> points_3 = generate_random_points(n, min_val, max_val);
-    // std::vector<Entry>* resultado = AlgoritmoSS(points_3, B);
-
-    // std::cout << "TEST ALGORITMO N <= B"<< std::endl;
-    // for (int i = 0; i < resultado->size(); i++){
-    //     std::cout << "(" << (*resultado)[i].p.x << ", " << (*resultado)[i].p.y << ")" << std::endl;
-    //     std::cout << "Direccion de memoria de A: " << (*resultado)[i].child_page << std::endl;
-    //     std::cout << "Radio: " << (*resultado)[i].cr << std::endl;
-    // }
-
-
-    std::cout << "TEST ALGORITMO N > B"<< std::endl;
-    int n_2 = 250;
-    std::vector<Point> points_4 = generate_random_points(n_2, min_val, max_val);
-    std::vector<Entry>* resultado_2 = AlgoritmoSS(points_4, B);
-    std::cout << "size del resultado: " << resultado_2->size() << std::endl;
-
- 
-
-    for (int i = 0; i < resultado_2->size(); i++){
-         std::cout << "(" << (*resultado_2)[i].p.x << ", " << (*resultado_2)[i].p.y << ")" << std::endl;
-         std::cout << "Direccion de memoria de A: " << (*resultado_2)[i].child_page << std::endl;
-         std::cout << "Radio: " << (*resultado_2)[i].cr << std::endl;
-    }
-
-    // imprimir tamaño de los hijos de resultado_2
-    for (int i = 0; i < resultado_2->size(); i++){
-        std::cout << "Tamaño de los hijos de resultado_2: " << (*resultado_2)[i].child_page->size() << std::endl;
-    }
-
-    // defino el primer hijo de resultado_2
-    std::vector<Entry>* hijo_1 = (*resultado_2)[0].child_page;
-    // imprimir tamaño de los hijos de hijo_1
-    for (int i = 0; i < hijo_1->size(); i++){
-        std::cout << "Punto: " << (*hijo_1)[i].p.x << (*hijo_1)[i].p.y << std::endl;
-    }
-    
-
-
-    return 0;
-}
+// int main() {
+//     int n = 10; // Número de puntos a generar
+//     double min_val = 0.0; // Valor mínimo en el rango
+//     double max_val = 1.0; // Valor máximo en el rango
+//
+//     std::vector<Point> points = generate_random_points(n, min_val, max_val);
+//
+//     int B = 128; // Tamaño máximo de un cluster
+//    
+//     // Entry result = OutputHoja(points);
+//     // // Imprimir tupla (g, r, a)
+//     // std::cout << "Medoide: (" << result.p.x << ", " << result.p.y << ")" << std::endl;
+//     // std::cout << "Radio: " << result.cr << std::endl;
+//     // // direccion en memoria de a
+//     // std::cout << "Direccion de memoria de a: " << result.child_page << std::endl;
+//    
+//     // std::vector<Entry>* a = result.child_page;
+//     // // imprimir el tamaño del vector
+//     // for (int i = 0; i < a->size(); i++){
+//     //     std::cout << "(" << (*a)[i].p.x << ", " << (*a)[i].p.y << ")" << std::endl;
+//     //     std::cout << "Direccion de memoria de a: " << (*a)[i].child_page << std::endl;
+//     //     std::cout << "Radio: " << (*a)[i].cr << std::endl;
+//     // }
+//
+//     // // testing OutputInterno
+//     // std::vector<Entry> results_outputHoja;
+//     // for(int i = 0; i < n; i++) {
+//     //     std::vector<Point> points_2 = generate_random_points(n, min_val, max_val);
+//     //     Entry temp_result = OutputHoja(points_2);
+//     //     results_outputHoja.push_back(temp_result);
+//     // }
+//     // Entry result_2 = OutputInterno(results_outputHoja);
+//     // // Imprimir tupla (G, R, A)
+//     // std::cout << "Medoide: (" << result_2.p.x << ", " << result_2.p.y << ")" << std::endl;
+//     // std::cout << "Radio: " << result_2.cr << std::endl;
+//     // // direccion en memoria de A
+//     // std::cout << "Direccion de memoria de A: " << result_2.child_page << std::endl;
+//
+//     // std::vector<Entry>* A = result_2.child_page;
+//
+//     // // imprimir el tamaño del vector
+//     // for (int i = 0; i < A->size(); i++){
+//     //     std::cout << "(" << (*A)[i].p.x << ", " << (*A)[i].p.y << ")" << std::endl;
+//     //     std::cout << "Direccion de memoria de A: " << (*A)[i].child_page << std::endl;
+//     //     std::cout << "Radio: " << (*A)[i].cr << std::endl;
+//     // }
+//
+//     //testing algoritmoSS
+//     // std::vector<Point> points_3 = generate_random_points(n, min_val, max_val);
+//     // std::vector<Entry>* resultado = AlgoritmoSS(points_3, B);
+//
+//     // std::cout << "TEST ALGORITMO N <= B"<< std::endl;
+//     // for (int i = 0; i < resultado->size(); i++){
+//     //     std::cout << "(" << (*resultado)[i].p.x << ", " << (*resultado)[i].p.y << ")" << std::endl;
+//     //     std::cout << "Direccion de memoria de A: " << (*resultado)[i].child_page << std::endl;
+//     //     std::cout << "Radio: " << (*resultado)[i].cr << std::endl;
+//     // }
+//
+//
+//     std::cout << "TEST ALGORITMO N > B"<< std::endl;
+//     int n_2 = 250;
+//     std::vector<Point> points_4 = generate_random_points(n_2, min_val, max_val);
+//     std::vector<Entry>* resultado_2 = AlgoritmoSS(points_4, B);
+//     std::cout << "size del resultado: " << resultado_2->size() << std::endl;
+//
+//
+//
+//     for (int i = 0; i < resultado_2->size(); i++){
+//          std::cout << "(" << (*resultado_2)[i].p.x << ", " << (*resultado_2)[i].p.y << ")" << std::endl;
+//          std::cout << "Direccion de memoria de A: " << (*resultado_2)[i].child_page << std::endl;
+//          std::cout << "Radio: " << (*resultado_2)[i].cr << std::endl;
+//     }
+//
+//     // imprimir tamaño de los hijos de resultado_2
+//     for (int i = 0; i < resultado_2->size(); i++){
+//         std::cout << "Tamaño de los hijos de resultado_2: " << (*resultado_2)[i].child_page->size() << std::endl;
+//     }
+//
+//     // defino el primer hijo de resultado_2
+//     std::vector<Entry>* hijo_1 = (*resultado_2)[0].child_page;
+//     // imprimir tamaño de los hijos de hijo_1
+//     for (int i = 0; i < hijo_1->size(); i++){
+//         std::cout << "Punto: " << (*hijo_1)[i].p.x << (*hijo_1)[i].p.y << std::endl;
+//     }
+//    
+//
+//
+//     return 0;
+// }
