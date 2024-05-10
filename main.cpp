@@ -14,7 +14,7 @@ int main() {
     std::cout << "======================================================"<< std::endl;
     std::cout << "CONSTRUCCIÓN CON ALGORITMO SS (N <= B)"<< std::endl;
     std::cout << "======================================================"<< std::endl;
-    std::cout << "Candidad de puntos:  " << n << std::endl;
+    std::cout << "Cantidad de puntos:  " << n << std::endl;
     std::cout << "" << std::endl;
 
     std::vector<Entry>* resultado = AlgoritmoSS(points, B);
@@ -35,7 +35,7 @@ int main() {
     std::cout << "CONSTRUCCIÓN CON ALGORITMO SS (N > B)"<< std::endl;
     std::cout << "======================================================"<< std::endl;
     n = 1000;
-    std::cout << "Candidad de puntos: " << n << std::endl;
+    std::cout << "Cantidad de puntos: " << n << std::endl;
     
     points = generate_random_points(n, min_val, max_val);
     resultado = AlgoritmoSS(points, B);
