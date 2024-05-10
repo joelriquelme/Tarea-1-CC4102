@@ -12,7 +12,7 @@ Función que dada un conjuntos de puntos, retorna un conjunto de clusters de tam
 
 param C_in: Un set de puntos de tamaño mínimo b
 
-return: retorna un vector de clusters de tamaño entre b y B.
+return: retorna un vector de clusters de tamaño entre b y B. Siendo b = B/2.
 */
 
 std::vector<Cluster> makeClusters(std::vector<Point> C_in, int B){
@@ -78,16 +78,19 @@ std::vector<Cluster> makeClusters(std::vector<Point> C_in, int B){
             }
         }
         //Revomemos cp de C_out
-        Cluster cp = C_out[cp_index];
+        //asignamos el elemento encontrado a cp
+        cp = C_out[cp_index];
         C_out.erase(C_out.begin() + cp_index);
     }
     //5.2 Si no, se define cp = {}.
-
+    else{
+        cp = Cluster();
+    }
     //6. Si |c ∪ cp| ≤ B:
     if (c.points.size() + cp.points.size() <= B){
         //6.1 Añadimos c ∪ cp a C_out
         c.merge(cp);
-        C_out.push_back(c);
+        C_out.push_back(c);        
     }
     //6.2 Si no, dividimos c ∪ cp en c1 y c2 usando MinMax split policy. Se añaden c1 y c2 a Cout.
     else{
@@ -114,32 +117,22 @@ param C_in: Un conjunto de puntos
 return: Una tupla (g, r, a) donde g es el medoide primario de Cin, r es llamado el radio cobertor y a la dirección del hijo respectivo.
 */
 
-Entry OutputHoja(std::vector<Point> C_in){
-    //1. Sea g el medoide primario de _Cin. Sea r = 0. Sea C = {} (el que corresponderá al nodo hoja).
+Entry OutputHoja(const std::vector<Point>& C_in) {
+    // 1. Sea g el medoide primario de _Cin. Sea r = 0. Sea C = {} (el que corresponderá al nodo hoja).
     Point g = findMedoid(C_in);
     double r = 0;
     std::vector<Entry> C;
     C.reserve(C_in.size());
-    //std::vector<Entry>* C = new std::vector<Entry>(C_in.size());
-    //2. Por cada p ∈ C_in: Añadimos (p, null, null) a C. Seteamos r = max(r, dist(g, p))
-    for (int i = 0; i < C_in.size(); i++){
-        Entry temp = Entry(C_in[i], 0.0, nullptr);
+    for (const auto& point : C_in) {
+        Entry temp = Entry(point, 0.0, nullptr);
         C.push_back(temp);
-        r = std::max(r, euclidean_distance(g, C_in[i]));
-
+        r = std::max(r, euclidean_distance(g, point));
     }
-    //pedir memoria para C
-    // std::vector<Entry>* C_mem; 
-    // C_mem = (std::vector<Entry>*) malloc(sizeof(Entry) * C.size());
     
-    // //copiar C en el espacio pedido en memoria C_men
-    // for (int i = 0; i < C.size(); i++){
-    //     (*C_mem).push_back(C[i]);
-    // }
-    
-    //4. Retornamos (g, r, a)
-    return Entry(g, r, &C);    
+    // 4. Retornamos (g, r, a)
+    return Entry(g, r, new std::vector<Entry>(C)); // Se usa new para asignar memoria dinámicamente
 }
+
 
 Entry OutputInterno(const std::vector<Entry>& C_mra) {
     std::vector<Point> medoides;
@@ -221,7 +214,7 @@ std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
 }
 
 // int main(){
-//     int n = 1000; // Número de puntos a generar
+//     int n = 150; // Número de puntos a generar
 //     int B = 128; // Tamaño máximo de un cluster
 //     double min_val = 0.0; // Valor mínimo en el rango
 //     double max_val = 1.0; // Valor máximo en el rango
@@ -234,20 +227,24 @@ std::vector<Entry>* AlgoritmoSS(const std::vector<Point>& C_in, int B) {
 //     //     std::cout << "(" << point.x << ", " << point.y << ")" << std::endl;
 //     // }
 
-//     std::vector<Cluster> clusters = makeClusters(points, B);
+//     // std::vector<Cluster> clusters = makeClusters(points, B);
 
-//     // Imprimir los clusters generados
-//     std::cout << "Clusters generados:" << std::endl;
-//     int i = 1;
-//     for (const auto& cluster : clusters) {
-//         std::cout << "Cluster " << i++ << ":" << std::endl;
-//         std::cout << "Medoid: (" << cluster.medoid.x << ", " << cluster.medoid.y << ")" << std::endl;
-//         std::cout << "Puntos:" << std::endl;
-//         for (const auto& point : cluster.points) {
-//             std::cout << "(" << point.x << ", " << point.y << ")" << std::endl;
-//         }
-//         std::cout << "Radio: " << cluster.radius() << std::endl;
-//     }
+//     // // Imprimir los clusters generados
+//     // std::cout << "Clusters generados:" << std::endl;
+//     // int i = 1;
+//     // for (const auto& cluster : clusters) {
+//     //     std::cout << "Cluster " << i++ << ":" << std::endl;
+//     //     std::cout << "Medoid: (" << cluster.medoid.x << ", " << cluster.medoid.y << ")" << std::endl;
+//     //     // tamaño del cluster
+//     //     std::cout << "Tamaño del cluster: " << cluster.points.size() << std::endl;
+//     //     std::cout << "Radio: " << cluster.radius() << std::endl;
+//     // }
+
+//     // probar minmax_split  
+//     std::pair<Cluster, Cluster> bestClusters = minmax_split(points); 
+//     // tamaño de los clusters
+//     std::cout << "Tamaño de los clusters: " << bestClusters.first.points.size() << " y " << bestClusters.second.points.size() << std::endl;
+    
 
 // }
 
@@ -312,7 +309,7 @@ int main() {
 
 
     std::cout << "TEST ALGORITMO N > B"<< std::endl;
-    int n_2 = 1000;
+    int n_2 = 250;
     std::vector<Point> points_4 = generate_random_points(n_2, min_val, max_val);
     std::vector<Entry>* resultado_2 = AlgoritmoSS(points_4, B);
     std::cout << "size del resultado: " << resultado_2->size() << std::endl;
@@ -325,6 +322,18 @@ int main() {
          std::cout << "Radio: " << (*resultado_2)[i].cr << std::endl;
     }
 
+    // imprimir tamaño de los hijos de resultado_2
+    for (int i = 0; i < resultado_2->size(); i++){
+        std::cout << "Tamaño de los hijos de resultado_2: " << (*resultado_2)[i].child_page->size() << std::endl;
+    }
+
+    // defino el primer hijo de resultado_2
+    std::vector<Entry>* hijo_1 = (*resultado_2)[0].child_page;
+    // imprimir tamaño de los hijos de hijo_1
+    for (int i = 0; i < hijo_1->size(); i++){
+        std::cout << "Punto: " << (*hijo_1)[i].p.x << (*hijo_1)[i].p.y << std::endl;
+    }
+    
 
 
     return 0;

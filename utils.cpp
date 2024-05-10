@@ -150,21 +150,22 @@ std::pair<Cluster, Cluster> minmax_split(const std::vector<Point>& points) {
             c1.medoid = points[i];
             c2.medoid = points[j];
             
+            
             int turn = 0;
-            for (int k = 0; k < points_temp.size(); ++k) {
+            for (int k = 0; k < points.size(); ++k) {
                 if (turn % 2 == 0){
                     std::pair<Point, int> closest = closest_point(points_temp, c1.medoid);
                     c1.add_point(closest.first);
                     points_temp.erase(points_temp.begin() + closest.second);
-                    
-                    
                 }
                 else{
                     std::pair<Point, int> closest = closest_point(points_temp, c2.medoid);
                     c2.add_point(closest.first);
                     points_temp.erase(points_temp.begin() + closest.second);
                 }
-            }    
+                turn++;
+            }
+               
             double maxRadius = std::max(c1.radius(), c2.radius());
             if (maxRadius < minRadius) {
                 minRadius = maxRadius;
