@@ -17,7 +17,13 @@
 
 Para compilar el archivo `main.cpp`, fue utilizado `g++` con `std=c++17`.
 
-Se utilizaron los siguientes comandos:
+Si quiere compilar y ejecutar el archivo `main.cpp`, ejecute:
+
+```
+make run
+```
+
+Esto ejecutará los comandos:
 
 ```
 //Compilar el archivo main.cpp
@@ -26,6 +32,8 @@ g++ -std=c++17 main.cpp -o main.out
 //Ejecutar
 ./main.out
 ```
+
+
 
 ## Estructuras de Datos  
 
