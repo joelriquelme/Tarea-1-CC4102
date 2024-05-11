@@ -23,7 +23,7 @@ Si quiere compilar y ejecutar el archivo `main.cpp`, ejecute:
 make run
 ```
 
-Esto ejecutará los comandos:
+En caso de no tener instalado lo necesario para utilizar el comando `make`, puedo utilizar los siguientes comandos para realizar la misma acción:
 
 ```
 //Compilar el archivo main.cpp
@@ -32,6 +32,15 @@ g++ -std=c++17 main.cpp -o main.out
 //Ejecutar
 ./main.out
 ```
+## Experimento
+
+Una vez ejecutado el código, se le pedirá el que ingrese el exponente $m$.
+
+Luego se construirán los M-Tree's con los distintos metodos con una muestra $P$ de puntos, siendo la cantidad de puntos $|P| = n = 2^m$. Posterior a la construcción de ambos arboles, se procederá a realizar las busquedas con un set $Q$ de 100 puntos elegidos generados aleatoriamente. Destacar que tanto para $P$ como para $Q$, los puntos generados se encuentras uniformemente distribuidos en el rango $[0,1]$.
+
+Las busquedas se realizarán de la forma $\{ (p, r) | \forall p \in Q, r = 0.02\}$ siendo $p$ el punto de busqueda y $r$ el radio de la consulta.
+
+Se mostrarán en pantalla la cantidades de accesos a disco para cada Árbol y para cada query, finalmente se calculará el promedio de estos accesos y su intervalo de confianza asociado.
 
 
 
