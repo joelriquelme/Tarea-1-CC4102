@@ -34,7 +34,11 @@ int main() {
     std::cout << "======================================================"<< std::endl;
     std::cout << "CONSTRUCCIÓN CON ALGORITMO SS (N > B)"<< std::endl;
     std::cout << "======================================================"<< std::endl;
-    n = 1000;
+    std::cout << "Ingresa el exponente de 2: " << std::endl;
+    int exponente;
+    std::cin >> exponente;
+
+    n = pow(2, exponente);
     std::cout << "Cantidad de puntos: " << n << std::endl;
     
     points = generate_random_points(n, min_val, max_val);
@@ -72,14 +76,22 @@ int main() {
     double r = 0.02;
     std::cout << "Radio de la query: " << r << std::endl;
 
+    
+
     std::cout << "" << std::endl;
     std::cout << "Realizando query..." << std::endl;
-    std::vector<Point> resultado_query = search(resultado, q, r);
+
+    
     std::cout << "" << std::endl;
-    std::cout << "-----------Resultado de la query:-----------"<< std::endl;
+    std::cout << "-----------Resultados de la querys:-----------"<< std::endl;
     std::cout << "" << std::endl;
-    for (int i = 0; i < resultado_query.size(); i++){
-        std::cout << "(" << resultado_query[i].x << ", " << resultado_query[i].y << ")" << std::endl;
+
+    //hacer 100 querys
+    std::vector<Point> points_query = generate_random_points(100, min_val, max_val);
+    for (int i = 0; i < 100; i++){
+        int counter = 0;
+        std::pair<std::vector<Point>, int> result = search(resultado, points_query[i], r, counter);
+        std::cout << result.second << std::endl;
     }
 
     return 0;
