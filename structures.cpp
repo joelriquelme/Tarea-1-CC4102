@@ -30,50 +30,6 @@ public:
 
 constexpr int B = MAX_NODE_SIZE / sizeof(Entry); // Factor de ramificación del árbol
 
-// Clase para representar un nodo en el M-Tree
-class Node {
-public:
-    std::vector<Entry> entries;
-
-    Node() {}
-
-    bool is_leaf() const {
-        return entries.empty();
-    }
-
-    bool is_full() const {
-        return entries.size() >= B;
-    }
-
-    void add_entry(const Entry& entry) {
-        entries.push_back(entry);
-    }
-};
-
-
-// Clase para representar el M-Tree
-class MTree {
-public:
-    Node root;
-
-    MTree() {}
-
-    void insert(const Entry& entry) {
-        insert_entry(entry, root);
-    }
-
-    void insert_entry(const Entry& entry, Node& node) {
-        if (node.is_leaf()) {
-            node.add_entry(entry);
-            // Realizar aquí la lógica para dividir el nodo si está lleno y rebalancear el árbol si es necesario
-        } else {
-            // Realizar aquí la lógica para buscar el nodo hijo adecuado y llamar recursivamente a insert_entry
-        }
-    }
-
-    // Otros métodos como búsqueda, eliminación, etc., se pueden agregar aquí
-};
-
 double distance(const Point& p1, const Point& p2) {
     return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
 }
