@@ -34,7 +34,7 @@ g++ -std=c++17 main.cpp -o main.out
 ```
 ## Experimento
 
-Una vez ejecutado el código, se le pedirá el que ingrese el exponente $m$.  _Se recomienda no utlizar un $m$ mayor a 11 para realizar pruebas pequeñas_
+Una vez ejecutado el código, se le pedirá el que ingrese el exponente $m$.  _Se recomienda no utilizar un $m$ mayor a 11 para realizar pruebas pequeñas. Además, es necesario que el $m$ sea mayor a 8 por como está construido el archivo main._
 
 Luego se construirán los M-Tree's con los distintos metodos con una muestra $P$ de puntos, siendo la cantidad de puntos $|P| = n = 2^m$. Posterior a la construcción de ambos arboles, se procederá a realizar las búsquedas con un set $Q$ de 100 puntos generados aleatoriamente. Destacar que tanto para $P$ como para $Q$, los puntos generados se encuentras uniformemente distribuidos en el rango $[0,1]$.
 
@@ -61,6 +61,10 @@ La clase `Cluster` representa un conjunto de puntos en un plano cartesiano. Esta
 La clase `Entry` representa una tupla `(p, cr, a)`, donde `p` es un punto, `r` es el radio cobertor y `a` una dirección en disco a la página de su hijo. Esta clase contiene los atributos `p`, `cr` y `child_page` de tipo `Point`, `double` y `vector<Entry>*` respectivamente.
 
 ## Algoritmos de Construcción
+
+### 1. Algoritmo de Construcción Ciaccia-Patella (CP)
+
+Lamentablemente la implementación de este algoritmo no fue realizada con éxito, se logró únicamente realizar los pasos indicados en el enunciado hasta el número 7. 
 
 ### 2. Algoritmo de Construcción Sexton-Swinbank (SS)
 

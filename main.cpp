@@ -1,4 +1,4 @@
-#include "query.cpp"
+#include "ciaccia-patella.cpp"
 
 int main() {
     int n = 10; // Número de puntos a generar

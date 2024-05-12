@@ -5,12 +5,9 @@
 #include <random>
 #include <chrono>
 #include <limits>
-#include "structures.cpp"
+#include "query.cpp"
 
-// Función para calcular la distancia euclidiana entre dos puntos
-double eucludean_distance(const Point& p1, const Point& p2) {
-    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
-}
+
 
 // Funcion para redistribuir los clusters de tamaño menor a B/2
 void redistribute_clusters(std::vector<std::vector<Point>>& F_sets, int B) {
@@ -31,7 +28,7 @@ void redistribute_clusters(std::vector<std::vector<Point>>& F_sets, int B) {
                     if (i != j && !redistributed[j] && F_sets[j].size() >= B) {
                         // Compare the current point with all points in the current cluster
                         for (const auto& other_point : F_sets[j]) {
-                            double distance = eucludean_distance(point, other_point);
+                            double distance = euclidean_distance(point, other_point);
                             if (distance < min_distance) {
                                 min_distance = distance;
                                 closest_cluster_index = j;
@@ -53,48 +50,14 @@ void redistribute_clusters(std::vector<std::vector<Point>>& F_sets, int B) {
 }
 
 
-// Función para generar n puntos aleatorios en el rango [min_val, max_val]
-std::vector<Point> generate_random_points(int n, double min_val, double max_val) {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(seed);
-    
-    std::uniform_real_distribution<> dis_x(min_val, max_val);
-    std::uniform_real_distribution<> dis_y(min_val, max_val);
-
-    std::vector<Point> points;
-    for (int i = 0; i < n; ++i) {
-        double x = dis_x(gen);
-        double y = dis_y(gen);
-        points.emplace_back(x, y);
-    }
-    return points;
-}
-
-
-
-// Función para obtener el punto más cercano en un conjunto de puntos
-Point closest_point(const std::vector<Point>& points, const Point& p) {
-    double min_distance = std::numeric_limits<double>::max();
-    Point closest;
-
-    for (const auto& point : points) {
-        double distance = eucludean_distance(point, p);
-        if (distance < min_distance) {
-            min_distance = distance;
-            closest = point;
-        }
-    }
-
-    return closest;
-}
 
 // para transformar de points a Entry
 std::vector<Entry> transform_to_entries(const std::vector<Point>& points) {
     std::vector<Entry> entries;
     for (const auto& point : points) {
         double cr = 0.0; // For simplicity, setting covering radius to 0
-        int child_page = -1; // For simplicity, setting child page to -1
-        Entry entry(point, cr, child_page);
+        int* child_page = nullptr; // For simplicity, setting child page to nullptr
+        Entry entry = Entry(point, cr, nullptr);
         entries.push_back(entry);
     }
     return entries;
@@ -122,8 +85,8 @@ void random_select(std::vector<std::vector<Point>>& F_sets, const std::vector<Po
         new_F_sets.resize(k); // Establecemos el tamaño del vector F_sets a k
 
         for (const auto& point : P) {
-            Point closest = closest_point(F, point);
-            int idx = std::find(F.begin(), F.end(), closest) - F.begin();
+            std::pair<Point, int> closest = closest_point(F, point);
+            int idx = std::find(F.begin(), F.end(), closest.first) - F.begin();
             new_F_sets[idx].push_back(point);
         }
 
@@ -173,7 +136,6 @@ void ciaccia_patella(const std::vector<Point>& P) {
         for (const auto& entry : entries) {
             //T.insert(entry);
         }
-        std::cout << "AL ARBOOOOL!!" << std::endl;
         //return T;
     }
     else {
@@ -191,8 +153,8 @@ void ciaccia_patella(const std::vector<Point>& P) {
     F_sets.resize(k); // Establecemos el tamaño del vector F_sets a k
 
     for (const auto& point : P) {
-        Point closest = closest_point(F, point);
-        int idx = std::find(F.begin(), F.end(), closest) - F.begin();
+        std::pair<Point, int> closest = closest_point(F, point);
+        int idx = std::find(F.begin(), F.end(), closest.first) - F.begin();
         F_sets[idx].push_back(point);
     }
 
@@ -205,7 +167,6 @@ void ciaccia_patella(const std::vector<Point>& P) {
         //}
         std::cout << std::endl;
     }
-    std::cout << "aloAAAAAAAAAssAAAAAAA1" << std::endl;
 
     // Pasos 4: Etapa de redistribución.
     redistribute_clusters(F_sets, B);
@@ -235,10 +196,7 @@ void ciaccia_patella(const std::vector<Point>& P) {
     // Paso 5: Si solo hay un cluster se vuelve al paso 2
     if (F_sets.size() == 1) {
         random_select(F_sets,P,B);
-        std::cout << "TEST1" << std::endl;
-        std::cout << F_sets.size() << std::endl;
         for (int i = 0; i < F_sets.size(); ++i) {
-            std::cout << "TEST" << std::endl;
             ciaccia_patella(F_sets[i]);
             
         }
@@ -253,20 +211,18 @@ void ciaccia_patella(const std::vector<Point>& P) {
     }
 }
 
-int main() {
+int main1() {
     int n = 1000; // Número de puntos a generar
     double min_val = 0.0; // Valor mínimo en el rango
     double max_val = 100.0; // Valor máximo en el rango
 
     std::vector<Point> points = generate_random_points(n, min_val, max_val);
     Point test_point = Point(50.0, 50.0); // Punto de prueba
-    Point closest = closest_point(points, test_point);
+    std::pair<Point, int> closest = closest_point(points, test_point);
 
     // Imprimir el punto más cercano al punto de prueba
-    std::cout << "Punto más cercano a (" << test_point.x << ", " << test_point.y << "): (" << closest.x << ", " << closest.y << ")" << std::endl;
-    std::cout << "BBBBBBBBB" << std::endl;
+    std::cout << "Punto más cercano a (" << test_point.x << ", " << test_point.y << "): (" << closest.first.x << ", " << closest.first.y << ")" << std::endl;
     std::cout << B << std::endl;
     ciaccia_patella(points);
-    std::cout << "FIIIIN" << std::endl;
     return 0;
 }
